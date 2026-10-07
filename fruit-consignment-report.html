@@ -1,0 +1,299 @@
+<title>과일 위탁판매 조사</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@600;800&family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: 단일 읽기 컬럼(본문 ~68자) + 넓은 표는 자체 가로 스크롤. 결론·권고를 맨 위에, 근거는 아래로. */
+:root{
+  --bg:#f4f6f1;
+  --surface:#ffffff;
+  --ink:#18221b;
+  --muted:#5b665e;
+  --line:#d9dfd6;
+  --leaf:#2d6a45;
+  --leaf-soft:#e3eee5;
+  --persimmon:#c4561f;
+  --persimmon-soft:#f8e6dc;
+  --ok:#2d6a45;
+  --warn:#9a6a00;
+  --warn-soft:#f6edd2;
+  --bad:#b23a2a;
+  --bad-soft:#f6e1dd;
+  --f-display:"Noto Serif KR","Apple SD Gothic Neo",serif;
+  --f-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121813;--surface:#1a221c;--ink:#e6ece6;--muted:#9eaaa1;--line:#2e3a31;
+    --leaf:#7cc495;--leaf-soft:#1f3326;--persimmon:#f08a55;--persimmon-soft:#3a2418;
+    --ok:#7cc495;--warn:#e0b84a;--warn-soft:#352c14;--bad:#f0806f;--bad-soft:#3a1f1a;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121813;--surface:#1a221c;--ink:#e6ece6;--muted:#9eaaa1;--line:#2e3a31;
+  --leaf:#7cc495;--leaf-soft:#1f3326;--persimmon:#f08a55;--persimmon-soft:#3a2418;
+  --ok:#7cc495;--warn:#e0b84a;--warn-soft:#352c14;--bad:#f0806f;--bad-soft:#3a1f1a;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15.5px;line-height:1.7;padding-inline:16px;padding-block:32px 64px}
+.wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:44px}
+header{display:flex;flex-direction:column;gap:10px;border-bottom:2px solid var(--ink);padding-bottom:20px}
+.eyebrow{font-size:12.5px;letter-spacing:.08em;color:var(--leaf);font-weight:700}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(28px,5vw,40px);line-height:1.25;margin:0;text-wrap:balance}
+.meta{color:var(--muted);font-size:13.5px;display:flex;flex-wrap:wrap;gap:6px 18px}
+h2{font-family:var(--f-display);font-weight:800;font-size:23px;margin:0 0 14px;text-wrap:balance;display:flex;gap:10px;align-items:baseline}
+h2 .no{font-family:var(--f-mono);font-size:14px;color:var(--leaf)}
+h3{font-size:16.5px;margin:22px 0 8px}
+p{margin:0 0 10px;max-width:68ch}
+ul,ol{margin:0 0 10px;padding-left:1.3em;max-width:70ch}
+li{margin:3px 0}
+a{color:var(--leaf);text-underline-offset:2px}
+a:focus-visible{outline:2px solid var(--persimmon);outline-offset:2px}
+strong{font-weight:700}
+.conclusions{display:grid;gap:12px;counter-reset:c}
+.concl{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px 12px 52px;position:relative;min-width:0}
+.concl::before{counter-increment:c;content:counter(c);position:absolute;left:16px;top:13px;font-family:var(--f-mono);font-size:15px;color:var(--leaf);width:24px;height:24px;border:1.5px solid var(--leaf);border-radius:50%;display:grid;place-items:center;line-height:1}
+.concl p{margin:0}
+.reco{background:var(--leaf-soft);border:1.5px solid var(--leaf);border-radius:10px;padding:20px 20px 14px}
+.reco .tag{font-size:12.5px;font-weight:700;letter-spacing:.06em;color:var(--leaf)}
+.reco h2{margin-top:6px}
+.steps{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 14px}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-size:14px;font-weight:500}
+.step b{font-family:var(--f-mono);color:var(--leaf);margin-right:6px}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface);margin:8px 0 12px}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:560px}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--line)}
+th{font-size:12.5px;letter-spacing:.04em;color:var(--muted);font-weight:700;background:var(--bg)}
+tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.total td{font-weight:700;border-top:2px solid var(--ink)}
+.pill{display:inline-block;font-size:11.5px;font-weight:700;padding:1px 8px;border-radius:999px;white-space:nowrap;line-height:1.7}
+.p-promo{background:var(--warn-soft);color:var(--warn)}
+.p-indep{background:var(--leaf-soft);color:var(--ok)}
+.p-none{background:var(--bad-soft);color:var(--bad)}
+.p-farm{background:var(--persimmon-soft);color:var(--persimmon)}
+.note{font-size:13.5px;color:var(--muted)}
+.callout{border-left:3px solid var(--persimmon);background:var(--persimmon-soft);padding:10px 14px;border-radius:0 6px 6px 0;margin:10px 0}
+.callout p{margin:0}
+.ask{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:8px 0 12px}
+.ask div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:14px;min-width:0}
+.ask b{display:block;font-family:var(--f-mono);color:var(--leaf);font-size:12px}
+.done-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.done-grid > div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;min-width:0}
+.done-grid h3{margin-top:0}
+.sources{font-size:13.5px;columns:2 300px;column-gap:28px}
+.sources li{break-inside:avoid}
+footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padding-top:14px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">시장 조사 · 과일 위탁판매</span>
+  <h1>과일 위탁판매, 누가 어떻게 잘 파는가</h1>
+  <div class="meta">
+    <span>작성 2026-10-07</span>
+    <span>조사원 5명 병렬 · 웹 검색 약 250회</span>
+    <span>대상: 스레드·인스타·블로그 판매 준비</span>
+  </div>
+</header>
+
+<section>
+  <h2>결론</h2>
+  <div class="conclusions">
+    <div class="concl"><p><strong>"월 1억·월 3억" 같은 매출 주장은 검증된 것이 한 건도 없습니다.</strong> 출처가 모두 툴 업체, 강의 판매자, 공급처 홍보입니다. 독립 출처에서 나온 근거는 클레임 기사, "남는 게 없다"는 후기 같은 부정적인 쪽뿐입니다.</p></div>
+    <div class="concl"><p><strong>"알리·테무에서 과일 위탁 많이 한다"는 말은 근거를 찾지 못했습니다.</strong> 테무는 입점 조건이 "국내 재고 보유 + 자체 배송"이라 위탁 방식과 맞지 않습니다. 알리는 정한 기한 안에 송장을 등록하지 못하면 주문이 자동 취소됩니다.</p></div>
+    <div class="concl"><p><strong>SNS에서 과일을 실제로 잘 파는 사람은 위탁 셀러가 아니라 생산자 본인이었습니다.</strong> 복숭아 250박스가 20초 만에, 600박스가 2.5초 만에 팔렸습니다. 이 차이가 우리 전략의 핵심입니다.</p></div>
+  </div>
+</section>
+
+<section class="reco">
+  <span class="tag">권고안</span>
+  <h2>농가 1곳과 직접 계약하고, 그 농가 이야기로 스레드에서 팝니다</h2>
+  <div class="steps">
+    <span class="step"><b>1</b>농가 1곳 직접 계약</span>
+    <span class="step"><b>2</b>농가 이야기로 스레드 콘텐츠</span>
+    <span class="step"><b>3</b>카드결제 주문 페이지</span>
+    <span class="step"><b>4</b>2주 테스트 후 확장</span>
+  </div>
+  <p>SNS에서 물건을 팔게 만드는 힘은 생산자에 대한 신뢰입니다. 위탁 셀러도 농가 한 곳의 이야기를 콘텐츠로 빌려오면 그 신뢰를 가져올 수 있습니다. 쿠팡에서 최저가와 광고로 경쟁하는 길은 피합니다.</p>
+  <p>주문 페이지는 이미 보유한 <strong>식스샵에 상품 1개만 올려서</strong> 만들 수 있습니다. 친구분이 쓰는 주문서 방식과 효과가 같고, 고객 데이터를 우리가 갖습니다. 단, 식스샵 카드결제 수수료와 사업자 요건은 아직 확인하지 못했습니다. 카드결제가 안 되면 스마트스토어로 대신합니다.</p>
+</section>
+
+<section>
+  <h2><span class="no">01</span>잘 파는 사람들: 3가지 유형</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>유형</th><th>대표 사례</th><th>핵심 방법</th><th>우리와의 관계</th></tr></thead>
+    <tbody>
+      <tr><td><strong>A. 쿠팡 위탁형</strong></td><td>고효율(02년생, 쿠팡 월매출 약 2억 주장), 김시온(월 순익 500만원 주장)</td><td>좁은 키워드('밤' 대신 '공주밤'), 사과·배·샤인머스캣처럼 단단한 과일, 시즌 끝나면 품절 처리했다가 다음 시즌 재진입</td><td>가격과 광고 싸움. 광고를 쓰면 순익률이 한 자릿수로 떨어짐</td></tr>
+      <tr><td><strong>B. 생산자 SNS 직판</strong></td><td>도도명가 복숭아 250박스 20초 완판 · 하바구농장 600박스 2.5초 매진 · 귤메달 누적 200억</td><td>생산자 스토리, 선착순 판매 일정 사전 공지, 댓글로 신청 받기</td><td><strong>SNS에서 통하는 방식.</strong> 다만 위탁이 아님</td></tr>
+      <tr><td><strong>C. 동네 과일가게 밴드 공구</strong></td><td>회원 2만 명 밴드에서 주 1회 공구에 500~600개 판매</td><td>새벽 도매시장에서 고르는 과정을 콘텐츠로 올림</td><td>지역 기반이라 우리와는 다름</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>이름이 드러난 위탁 셀러 사례</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>셀러</th><th>주장 실적</th><th>채널·방법</th><th>출처 성격</th></tr></thead>
+    <tbody>
+      <tr><td>고효율 (02년생)</td><td>약 6개월 만에 월매출 약 2억, 광고 없음</td><td>쿠팡. 좁은 키워드, 쿠팡 판매자가 많은 품목은 피함</td><td><span class="pill p-promo">툴 업체 홍보</span></td></tr>
+      <tr><td>다크맨 (직장인 부업)</td><td>월매출 약 5,000만원 (위탁 3,500만 + 사입 1,500만)</td><td>벤더사(공급 대행) 활용, 농축산물</td><td><span class="pill p-promo">툴 업체 홍보</span></td></tr>
+      <tr><td>김시온 · 트렌드잇</td><td>쿠팡 과일로 월 순익 500만원</td><td>도매상 인맥으로 시작. 광고를 켠 뒤 매출 급증</td><td><span class="pill p-promo">툴 업체 홍보</span></td></tr>
+      <tr><td>김예림 (25세)</td><td>쿠팡 과일 월매출 3억</td><td>세부 내용 확인 못함</td><td><span class="pill p-none">원출처 미확인</span></td></tr>
+      <tr><td>경희대 4학년 (02년생)</td><td>15개월 누적 순수익 1.5억~2억</td><td>쿠팡이 토스·당근보다 "시간 대비 매출 3배"</td><td><span class="pill p-none">원출처 미확인</span></td></tr>
+      <tr><td>조주연 · 프레시파머스</td><td>1년 뒤 월매출 1억여 원</td><td>오픈마켓. 지금은 전자책·강의 판매</td><td><span class="pill p-promo">강의 판매자</span></td></tr>
+      <tr><td>에코앤팜 소속 셀러 (익명)</td><td>스마트스토어 9.5억, 오픈마켓 누적 19.6억</td><td>공급처가 상세페이지와 교육 지원</td><td><span class="pill p-promo">공급처 홍보</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>쿠팡 위탁 마진 예시: 샤인머스캣 2kg</h3>
+  <p class="note">조사원이 가정한 숫자로 계산했습니다. 출처에 나온 수치가 아닙니다.</p>
+  <div class="tbl"><table style="min-width:420px">
+    <thead><tr><th>항목</th><th class="num">광고 사용</th><th class="num">광고 없음</th></tr></thead>
+    <tbody>
+      <tr><td>판매가</td><td class="num">29,900원</td><td class="num">29,900원</td></tr>
+      <tr><td>공급가 (배송비 포함)</td><td class="num">−21,000원</td><td class="num">−21,000원</td></tr>
+      <tr><td>쿠팡 수수료 7.6%</td><td class="num">−2,272원</td><td class="num">−2,272원</td></tr>
+      <tr><td>광고비 (매출의 10%)</td><td class="num">−2,990원</td><td class="num">0원</td></tr>
+      <tr><td>클레임 충당 (3%)</td><td class="num">−897원</td><td class="num">−897원</td></tr>
+      <tr class="total"><td>박스당 순익</td><td class="num">2,741원 (9.2%)</td><td class="num">5,731원 (19.2%)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>독립 출처에서 확인된 부정적 근거</h3>
+  <ul>
+    <li>블라인드 "위탁판매 월천 찍어본 후기": 순수익이 거의 없고 과일이 특히 힘들었다는 내용</li>
+    <li>추석 시즌 과일 업체의 배송 지연, 품질 불량, 환불 거부 분쟁이 언론에 반복 보도됨</li>
+    <li>명절 계약 불이행 민원 중 실제로 배상받은 비율은 5.89%</li>
+  </ul>
+</section>
+
+<section>
+  <h2><span class="no">02</span>알리·테무·쉬인 사실 확인</h2>
+  <div class="tbl"><table>
+    <thead><tr><th></th><th>알리익스프레스 (K베뉴)</th><th>테무 (한국 로컬셀러)</th><th>쉬인</th></tr></thead>
+    <tbody>
+      <tr><td>과일 판매</td><td>가능. 셀러가 등록하고 배송함</td><td>2025년 10월부터 신선식품 판매</td><td>식품 카테고리 개방 여부 미확인</td></tr>
+      <tr><td>입점 조건</td><td>사업자등록 + 통신판매업 신고, 공개 모집</td><td><strong>국내 재고 보유 + 자체 주문처리·배송</strong></td><td>입점비 0원</td></tr>
+      <tr><td>과일 수수료</td><td><strong>8.8%</strong> (2026.8.1부터, 기존 6.6%) · 신규 입점 90일 0%</td><td>비공개</td><td>미확인</td></tr>
+      <tr><td>위탁 적합성</td><td>기한 안에 송장이 없으면 주문 자동 취소 → 불리</td><td>입점 조건상 위탁 배제</td><td>—</td></tr>
+      <tr><td>과일 위탁 사례</td><td colspan="3"><span class="pill p-none">찾지 못함</span> 과일 위탁 강의와 유튜브는 모두 쿠팡·스마트스토어 기준</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">알리에서 잘 팔았다는 과일 사례(깨비농원: 입점 후 하루 주문량 6배)는 농원이 직접 판 것이고, 위탁이 아닙니다.</p>
+</section>
+
+<section>
+  <h2><span class="no">03</span>유튜브·온라인 강의 시장</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>상품 유형</th><th>예시</th><th class="num">가격</th></tr></thead>
+    <tbody>
+      <tr><td>크몽 전자책</td><td>"첫달 매출 2150만원"(175쪽), "7년차 빅파워"</td><td class="num">12,000~199,000원</td></tr>
+      <tr><td>녹화 강의</td><td>클래스101 과일위탁판매 부업</td><td class="num">249,000원</td></tr>
+      <tr><td>녹화 강의</td><td>행크에듀 농산물 위탁판매반 (17강)</td><td class="num">480,000원</td></tr>
+      <tr><td>무료특강 → 유료 과정</td><td>핏크닉 설화쌤, 도매꾹 캠퍼스, 온채널</td><td class="num">유료 가격 미확인</td></tr>
+      <tr><td>유튜브 채널</td><td>미라클, 철대표, 농브라더스</td><td class="num">미확인</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout"><p><strong>한국소비자원 피해 주의보 (2026.2)</strong> · 고액 부업 강의 피해구제 신청이 2025년 42건으로 전년보다 약 4배 늘었습니다. 피해금액은 100만~400만원 구간이 89.8%입니다. 업체 전 직원이 "성공 강사 인터뷰도 돈 주고 만든다"고 증언했습니다.</p></div>
+  <ul>
+    <li><strong>이해관계:</strong> 공급처, 툴 업체, 도매 플랫폼이 직접 교육을 엽니다. 수강생이 곧 그 회사의 고객이 되는 구조입니다.</li>
+    <li><strong>판단:</strong> 방법 자체는 대부분 무료로 공개돼 있습니다. 유료 강의에만 있는 것은 공급처 연결, 1:1 피드백, 실행을 강제하는 챌린지 정도입니다. <strong>강의는 사지 않는 것을 권합니다.</strong></li>
+  </ul>
+</section>
+
+<section>
+  <h2><span class="no">04</span>친구분 방식: 주문서 랜딩페이지 (오픈오다)</h2>
+  <ul>
+    <li><strong>확인된 내용:</strong> 블션주식회사가 운영합니다. 카드결제는 KIS정보통신(KISPG)이 처리하고, 주문 알림은 카카오 알림톡으로 갑니다. 픽업과 배송 둘 다 지원하며, 판매자는 <strong>사업자등록증을 제출해야</strong> 합니다.</li>
+    <li><strong>확인 못 한 내용:</strong> 수수료, 정산 주기, 계좌이체 지원 여부는 공개된 자료가 없습니다. 문의처는 cs@openoda.com, 031-374-1301입니다.</li>
+  </ul>
+
+  <h3>비슷한 서비스 비교</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>서비스</th><th>수수료</th><th>정산</th><th>메모</th></tr></thead>
+    <tbody>
+      <tr><td>스룩페이</td><td>카드 3.4% (VAT 별도)</td><td>영업일 D+5</td><td>SNS 공구용 결제 링크</td></tr>
+      <tr><td>인포크마켓</td><td>3.45%</td><td>영업일 D+5</td><td>토스페이먼츠 결제</td></tr>
+      <tr><td>리틀리</td><td>실질 약 8.7%</td><td>주 1회</td><td>디지털 상품 중심</td></tr>
+      <tr><td>스마트스토어 (마케팅 링크)</td><td>판매수수료 0.91% + 결제수수료 별도</td><td>—</td><td>네이버페이로 결제 신뢰도 높음</td></tr>
+      <tr><td>폼 + 내 통장 계좌이체</td><td>0%</td><td>즉시</td><td><span class="pill p-none">법 위반 위험</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>법적으로 꼭 챙길 것</h3>
+  <ul>
+    <li><strong>구매안전서비스:</strong> 현금(계좌이체)으로 먼저 돈을 받으면 에스크로 등 구매안전서비스를 제공해야 합니다. 위반 시 과태료 1천만원 이하입니다. <strong>카드결제는 이 의무에서 빠집니다.</strong></li>
+    <li><strong>통신판매업 신고:</strong> 과일은 부가세 면세 품목입니다. 그래서 간이과세자 신고 면제 규정이 적용되지 않고, 직전연도 거래가 50회 이상이면 신고해야 합니다.</li>
+    <li><strong>원산지 표시:</strong> 상품명이나 가격 옆에, 상품명과 같거나 더 큰 글씨로 표시해야 합니다. 표시하지 않으면 과태료 1천만원 이하입니다.</li>
+    <li><strong>사업자정보 표시:</strong> 상호, 대표자, 연락처, 사업자번호, 통신판매업 신고번호를 페이지에 표시해야 합니다.</li>
+  </ul>
+
+  <h3>친구분께 물어볼 것</h3>
+  <div class="ask">
+    <div><b>Q1</b>수수료가 몇 %인가</div>
+    <div><b>Q2</b>정산이 며칠 뒤에 들어오나</div>
+    <div><b>Q3</b>카드결제가 되나, 계좌이체만 되나</div>
+    <div><b>Q4</b>주문서 화면에 사업자정보가 표시되나</div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="no">05</span>조사 범위와 한계</h2>
+  <div class="done-grid">
+    <div>
+      <h3>한 것</h3>
+      <ul>
+        <li>조사원 5명이 주제별로 병렬 조사</li>
+        <li>웹 검색 약 250회</li>
+        <li>식스샵 스토어 조회 (상품 0개 확인, 읽기만 함)</li>
+      </ul>
+    </div>
+    <div>
+      <h3>못 한 것</h3>
+      <ul>
+        <li>세션 검색 한도에 걸려 11:30에 조사가 끝남</li>
+        <li>기사·블로그 원문 사이트 대부분이 차단돼, 내용은 검색 결과 요약에 근거함</li>
+        <li>스레드에서 과일을 파는 실제 계정은 찾지 못함</li>
+        <li>식스샵 결제 수수료, 도매꾹 농산물 조건 미확인</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>주요 출처</h2>
+  <ul class="sources">
+    <li><a href="https://www.windly.cc/blog/consignment-sales-agent-interview-goefficiency">고효율 인터뷰 (윈들리)</a></li>
+    <li><a href="https://www.windly.cc/blog/consignment-sales-agent-interview-trendeat">트렌드잇 김시온 (윈들리)</a></li>
+    <li><a href="https://kmong.com/gig/458101">크몽 과일 위탁 전자책</a></li>
+    <li><a href="https://myip.co.kr/board/read.php?id=1911&amp;table=tip">02년생 순수익 1.5억 재게시글</a></li>
+    <li><a href="https://www.teamblind.com/kr/post/위탁판매-월천-찍어본-후기-스토어-현실-mj636bqk">블라인드 위탁판매 후기</a></li>
+    <li><a href="https://www.consumernews.co.kr/news/articleView.html?idxno=765213">추석 과일 분쟁 (소비자가만드는신문)</a></li>
+    <li><a href="https://www.wikitree.co.kr/articles/1077880">도도명가 복켓팅 (위키트리)</a></li>
+    <li><a href="https://openads.co.kr/content/contentDetail?contsId=8181">인스타로 과일 사는 MZ (오픈애즈)</a></li>
+    <li><a href="https://www.venturesquare.net/1111814/">귤메달 (벤처스퀘어)</a></li>
+    <li><a href="https://www.sedaily.com/article/13358390">농켓팅 (서울경제)</a></li>
+    <li><a href="https://www.i-boss.co.kr/ab-6141-33959">밴드 공구 규모 (아이보스)</a></li>
+    <li><a href="https://www.etnews.com/20260731000239">알리 수수료 인상 (전자신문)</a></li>
+    <li><a href="https://byline.network/2025/02/18_2918772/">테무 입점 조건 (바이라인)</a></li>
+    <li><a href="https://www.sweepingoms.com/blog/aliexpress-order-cancellation">알리 자동취소 규정 (스윕)</a></li>
+    <li><a href="https://biz.newdaily.co.kr/site/data/html/2025/10/01/2025100100157.html">테무 신선식품 (뉴데일리)</a></li>
+    <li><a href="https://class101.net/ko/products/64615442f7bead000f7a4d06">클래스101 과일위탁 강의</a></li>
+    <li><a href="https://www.hank-edu.com/course/774">행크에듀 농산물 위탁판매반</a></li>
+    <li><a href="https://www.ytn.co.kr/_ln/0102_202602271122436720">소비자원 부업 강의 주의보 (YTN)</a></li>
+    <li><a href="https://openoda.com/privacy">오픈오다 개인정보처리방침</a></li>
+    <li><a href="https://srookpay.com/content/sub06/01_01.asp">스룩페이 수수료</a></li>
+    <li><a href="https://inpock-market-guide.oopy.io/22a824db-0ef3-80fb-b399-d18a38f09229">인포크마켓 수수료</a></li>
+    <li><a href="https://consumer.go.kr/user/bbs/consumer/380/940/bbsDataView/3184.do">구매안전서비스 의무 (소비자24)</a></li>
+    <li><a href="https://www.findsemusa.com/service/consult/consultView.do?qidx=18517">면세사업자 통신판매업 신고 (세무 상담)</a></li>
+    <li><a href="https://easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&amp;csmSeq=1011&amp;ccfNo=2&amp;cciNo=1&amp;cnpClsNo=1">농산물 원산지 표시 (찾기쉬운 생활법령)</a></li>
+  </ul>
+</section>
+
+<footer>매출 수치는 판매자 측 주장이며 검증되지 않았습니다. 법규 내용은 실행 전에 세무사나 관할 기관에 확인하세요.</footer>
+
+</div>
